@@ -1,7 +1,6 @@
 /* Global Variables */
-// api.openweathermap.org/data/2.5/weather?zip=11311&appid=e00d4efeadcf3512ba3a48c224fce56a
 const baseURL = "https://api.openweathermap.org/data/2.5/weather?zip=";
-const apiKey = "&appid=e00d4efeadcf3512ba3a48c224fce56a";
+const apiKey = "e00d4efeadcf3512ba3a48c224fce56a";
 // Create a new date instance dynamically with JS
 let d = new Date();
 let newDate = d.getMonth() + 1 + "." + d.getDate() + "." + d.getFullYear();
@@ -13,7 +12,12 @@ function performAction(e) {
   const zipCode = document.getElementById("zip").value;
   const feeling = document.getElementById("feelings").value;
 
-  getData(baseURL + zipCode + apiKey)
+  if (isNaN(zipCode) || zipCode == "") {
+    alert("Please Enter Valid Zip Code");
+    return;
+  }
+
+  getData(baseURL, zipCode, apiKey)
     .then((data) => {
       postData("http://localhost:5500/addData", {
         temp: data.main.temp,
@@ -26,8 +30,8 @@ function performAction(e) {
     });
 }
 // get data
-const getData = async (url) => {
-  const res = await fetch(url);
+const getData = async (baseURL, zipCode, key) => {
+  const res = await fetch(baseURL + zipCode + "&units=metric&appid=" + key);
   try {
     const data = await res.json();
 
@@ -61,7 +65,8 @@ async function updateUI() {
     const data = await req.json();
     console.log(data);
     document.getElementById("date").innerHTML = "Date : " + data.date;
-    document.getElementById("temp").innerHTML = "Temperature : " + data.temp;
+    document.getElementById("temp").innerHTML =
+      "Temperature : " + data.temp + " °C";
     document.getElementById("content").innerHTML =
       "User Feeling : " + data.feeling;
   } catch (error) {
